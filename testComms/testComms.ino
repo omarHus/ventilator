@@ -6,7 +6,7 @@ void receiveData() {
   char receivedChar;     // read char from serial port
   int ndx = 0;          // current index of data buffer
   // clean data buffer
-  memset(data, 32, sizeof(data));
+  memset(data, DATA_MAX_SIZE, sizeof(data));
   // read while we have data available and we are
   // still receiving the same message.
   while(Serial.available() > 0) {
@@ -26,24 +26,23 @@ void receiveData() {
     // parse the message, you'll be able to tell that it's
     // not a valid message.
     if (ndx >= DATA_MAX_SIZE) {
-      Serial.println(data);
       break;
     }
   }
   // no more available bytes to read from serial and we
   // did not receive the separato. it's an incomplete message!
-//  Serial.println("error: incomplete message");
-//    Serial.print(data);
-//  memset(data, 32, sizeof(data));
+  Serial.println("error: incomplete message");
+  Serial.print(data);
+  memset(data, DATA_MAX_SIZE, sizeof(data));
 }
 
 void setup() {
   // Start Serial communication
+  Serial.println("hello from arduino!");
   Serial.begin(9600);
 }
 
 void loop() {
-//  Serial.println("hello from arduino!");
   receiveData();
   delay(1000);
 }

@@ -1,0 +1,23 @@
+{
+  "name": "ventilator",
+  "version": "1.0.0",
+  "description": "controller and software for mechanical ventilator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omarHus/ventilator.git"
+  },
+  "author": "Omar Husain",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/omarHus/ventilator/issues"
+  },
+  "homepage": "https://github.com/omarHus/ventilator#readme",
+  "dependencies": {
+    "johnny-five": "^1.4.0",
+    "serialport": "^8.0.7"
+  }
+}
