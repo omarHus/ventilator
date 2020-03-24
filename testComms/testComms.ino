@@ -13,6 +13,7 @@ void receiveData() {
     receivedChar = Serial.read();
     if (receivedChar == endMarker) {
       data[ndx] = '\0'; // end current message
+      Serial.println(data);
       return;
     }
     // looks like a valid message char, so append it and
@@ -31,8 +32,8 @@ void receiveData() {
   }
   // no more available bytes to read from serial and we
   // did not receive the separato. it's an incomplete message!
-  Serial.println("error: incomplete message");
-  Serial.print(data);
+//  Serial.println("error: incomplete message");
+//  Serial.print(data);
   memset(data, DATA_MAX_SIZE, sizeof(data));
 }
 
@@ -43,6 +44,17 @@ void setup() {
 }
 
 void loop() {
-  receiveData();
+
+  char receivedChar = 'h';
+  static char endMarker = '\n';
+  int ndx = 0;
+  while(Serial.available() > 0) {
+    receivedChar = Serial.read();
+    if (receivedChar == endMarker) {
+      data[ndx] = '\0'; // end current message
+      Serial.println(data);
+      return;
+    }
+  }
   delay(1000);
 }
