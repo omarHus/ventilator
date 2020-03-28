@@ -1,31 +1,62 @@
+#include <math.h> 
+
+/* Function declarations */
+double flowCalc(double p1, double p2);
+double flowRate(double tidal_volume, double respiration_rate);
+
 void setup() {
   // put your setup code here, to run once:
-
+  Serial.begin(9600);
+  Serial.println("Serial comms established");
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  
+  // Testing values 
+  double p1 = 101.350;
+  double p2 = 100.000;
+
+  double q = flowMeasurement(p1,p2);
+  Serial.println(q);
+
+  double Vt = 500.0;
+  double rr = 8.0;
+
+  double v_dot = flowRate(Vt,rr);
+  Serial.println(v_dot);
 }
 
 /****** Physical Model Functions ******/
 
-/* Flow calculation: Bernoulli's eqn and Flow = Area*Velocity */
-double flowCalc(double p1, p2){
+/* 1. Flow measurement from pressure sensors: 
+ * Bernoulli's eqn and Flow = Area*Velocity (uniform). input p1, p2 [MPa], output [mL/min] 
+ * Must convert Psi from sensor to MPa
+ * Must include math.h library
+*/
+double flowMeasurement(double p1, double p2){
 
-  double flowRate = 0.0;      // [m^3/s]
+  double flowRate = 0.0;
   
   // Venturi Geometry
-  static double d1 = 0.01905; // [m]
-  static double d2 = 0.001;   // [m]
+  static double d1 = 11.05;                 // [mm]
+  static double d2 = 5.80;                  // [mm]
+  static double A1 = (M_PI/4.0)*square(d1); // [mm^2]
+  static double A2 = (M_PI/4.0)*square(d2); // [mm^2]
 
   // air density
-  static double rho = 1.225;  // [kg/m^3]
+  static double rho = 1.225;                // [kg/m^3]
 
   // Catch error if p2 > p1 
   if (p1 > p2) {
-    flowRate = sqrt( (2.0/rho)*(p1-p2)/( (16.0/(M_PI*M_PI))*(1.0/pow(d2,4.0) - 1.0/pow(d1,4.0))));
+    flowRate = 60.0*sqrt( (2.0/rho)*(p1-p2)/( (1.0/square(A2))-(1.0/square(A1)) ) ); // [mL/min]
   }
 
   return flowRate;
+}
+
+/* 2. Converting Flow rate from tidal volume: 
+ * Input: tidal volume [mL], respiration rate (RR) [breaths/min]
+ * Output: flow rate [mL/min]
+*/
+double flowRate(double tidal_volume, double respiration_rate) {
+  return tidal_volume*respiration_rate;
 }
