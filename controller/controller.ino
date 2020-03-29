@@ -123,7 +123,7 @@ double flowMeasurement(double p1, double p2){
   const double A2 = (M_PI/4.0)*square(d2); // [mm^2]
 
   // air density
-  static double rho = 1.225;                // [kg/m^3]
+  const double rho = 1.225;                // [kg/m^3]
 
   // Catch error if p2 > p1
   if (p1 > p2) {
