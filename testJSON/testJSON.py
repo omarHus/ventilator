@@ -2,7 +2,7 @@ import time
 import json
 import serial
 
-ser = serial.Serial('/dev/cu.usbmodem14201', 9600)
+ser = serial.Serial('/dev/cu.usbmodem1411', 9600)
 print(ser.name)
 
 # Read the "Hello World" line
@@ -17,7 +17,7 @@ json_data = json.loads(json_line)
 print(json_data)
 
 # Write JSON data to the Arduino
-test_dict = {'pressure': 19, 'volume': 4, 'action': 'update'}
+test_dict = {'p1': 19, 'v1': 4, 'action': 'update'}
 test_dict_serialized = json.dumps(test_dict)
 ser.write(test_dict_serialized.encode('utf-8'))
 
