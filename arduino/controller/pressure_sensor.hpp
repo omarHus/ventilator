@@ -21,8 +21,8 @@ private:
     // Calibration parameters, based on product code (datasheet figure 4)
     const double _max_psi = 25.0;
     const double _min_psi = 0.0;
-    const double _max_cnt = 15099494.4;
-    const double _min_cnt = 1677721.6;
+    const uint32_t _max_cnt = 15099494;
+    const uint32_t _min_cnt = 1677722;
 };
 
 #endif // PRESSURE_SENSOR_H
