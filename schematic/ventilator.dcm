@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP MPRLS0025PA00001A
+D Honeywell MicroPressure Board Mount Pressure Sensors
+K spi honeywell pressure
+F https://sensing.honeywell.com/index.php?ci_id=172626
+$ENDCMP
+#
+#End Doc Library
