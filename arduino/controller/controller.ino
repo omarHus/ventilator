@@ -202,16 +202,24 @@ double computePID(double input, double setpoint, double delta_t)
  *  - Then we adjust our current duty cycle by that amount
  */
 int convertToDutyCycle(double pid_output, int curr_duty_cycle)
-{
+{  
+    int delta;
+  
     // First deal with the edge cases, if the flow adjustment is massive in either direction, we can only turn the PWM signal all on or off
-    if (pid_output >= 50,000.0) {
-        // Turn it all the way on (100%)
-        return 255;
-    } else if (pid_output <= 0) {
-        // Turn it all the way off (10%)
-        return 25;
+    if (abs(pid_output) >= 50,000.0) {
+        // The largest change we can do
+        delta = 255;
+    } else if (abs(pid_output) <= 0) {
+        // The smallest change we can do
+        delta = 25;
     } else {
         // Adjust the duty cycle accordingly
-        return curr_duty_cycle - ((int) (DUTY_CYCLE_CONV_SLOPE * pid_output));
+        delta = abs(((int) (DUTY_CYCLE_CONV_SLOPE * pid_output)));
+    }
+
+    if (pid_output < 0) {
+        return curr_duty_cycle + delta;
+    } else {
+        return curr_duty_cycle - delta;
     }
 }
