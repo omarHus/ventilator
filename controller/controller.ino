@@ -59,9 +59,9 @@ void loop()
       comms_receive(&msg);
 
       // Read input from sensors
-      double pressure_p11 = patient1_sensor1->getPressure();
+      double pressure_p11 = patient1_sensor1->getPressure(); // CLOSEST Patient 1
       double pressure_p12 = patient1_sensor2->getPressure();
-      double pressure_p21 = patient2_sensor2->getPressure();
+      double pressure_p21 = patient2_sensor2->getPressure(); // CLOSEST Patient 2
       double pressure_p22 = patient2_sensor2->getPressure();
 
       debug_double("\tPatient 1 Pressure Sensor 1 = %s", pressure_p11);
@@ -69,9 +69,9 @@ void loop()
       debug_double("\tPatient 2 Pressure Sensor 1 = %s", pressure_p21);
       debug_double("\tPatient 2 Pressure Sensor 2 = %s", pressure_p22);
 
-      // TODO: How do we report the pressure to the desktop app? Average? Difference?
-      msg.pressure_p1 = (pressure_p11 + pressure_p12) / 2.0;
-      msg.pressure_p2 = (pressure_p21 + pressure_p22) / 2.0;
+      // Pass the closest pressure readings to the display
+      msg.pressure_p1 = pressure_p11;
+      msg.pressure_p2 = pressure_p21;
 
       debug_double("\tPatient 1 Average Pressure = %s", msg.pressure_p1);
       debug_double("\tPatient 2 Average Pressure = %s", msg.pressure_p2);
@@ -117,10 +117,10 @@ double flowMeasurement(double p1, double p2){
   double flowRate = 0.0;
 
   // Venturi Geometry
-  static double d1 = 11.05;                 // [mm]
-  static double d2 = 5.80;                  // [mm]
-  static double A1 = (M_PI/4.0)*square(d1); // [mm^2]
-  static double A2 = (M_PI/4.0)*square(d2); // [mm^2]
+  const double d1 = 11.05;                 // [mm]
+  const double d2 = 5.80;                  // [mm]
+  const double A1 = (M_PI/4.0)*square(d1); // [mm^2]
+  const double A2 = (M_PI/4.0)*square(d2); // [mm^2]
 
   // air density
   static double rho = 1.225;                // [kg/m^3]

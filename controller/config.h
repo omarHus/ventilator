@@ -20,9 +20,9 @@
 #define PID_GAIN_D (0.1)
 
 // Setup the pins used by the different pressure sensors
-#define SPI_CS_PATIENT_1_SENSOR_1 (10U)
+#define SPI_CS_PATIENT_1_SENSOR_1 (10U) // CLOSEST P1
 #define SPI_CS_PATIENT_1_SENSOR_2 (11U)
-#define SPI_CS_PATIENT_2_SENSOR_1 (12U)
+#define SPI_CS_PATIENT_2_SENSOR_1 (12U) // CLOSEST P2
 #define SPI_CS_PATIENT_2_SENSOR_2 (13U)
 
 #endif // CONFIG_H
