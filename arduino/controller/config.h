@@ -6,7 +6,7 @@
 #define CONFIG_H
 
 // Set to 1 if no electronics are attached, and we are just faking sensor data
-#define NO_ELECTRONICS_ATTACHED (1U)
+#define NO_ELECTRONICS_ATTACHED (0U)
 
 // Set to 1 if no desktop app is attached, and we want to just debug from serial port monitor
 #define NO_DESKTOP_APP_ATTACHED (1U)
@@ -20,10 +20,10 @@
 #define PID_GAIN_D (0.0)
 
 // Setup the digital pins used by the different pressure sensors
-#define SPI_CS_PATIENT_1_SENSOR_1 (10U) // CLOSEST P1
-#define SPI_CS_PATIENT_1_SENSOR_2 (11U)
-#define SPI_CS_PATIENT_2_SENSOR_1 (12U) // CLOSEST P2
-#define SPI_CS_PATIENT_2_SENSOR_2 (13U)
+#define SPI_CS_PATIENT_1_SENSOR_1 (2U) // CLOSEST P1
+#define SPI_CS_PATIENT_1_SENSOR_2 (4U)
+#define SPI_CS_PATIENT_2_SENSOR_1 (6U) // CLOSEST P2
+#define SPI_CS_PATIENT_2_SENSOR_2 (7U)
 
 // Setup the analog pins used by the different valves
 #define PWM_PATIENT_1_VALVE (3U)

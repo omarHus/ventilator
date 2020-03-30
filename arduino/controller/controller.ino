@@ -72,7 +72,7 @@ void loop()
     unsigned long currentTime = micros();
     double elapsedTime = currentTime - previousTime;
     if (elapsedTime >= POLLING_FREQ) {
-        debug_msg("Begin controller main code");
+        debug_double("Begin controller main code, elapsedTime = %s us", elapsedTime);
 
         // Convert elapsedTime from microseconds to seconds for remaining calculations
         elapsedTime = elapsedTime / 1000000.0;
