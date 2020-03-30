@@ -16,13 +16,17 @@
 
 // Setup PID gain
 #define PID_GAIN_P (1.0)
-#define PID_GAIN_I (0.2)
-#define PID_GAIN_D (0.1)
+#define PID_GAIN_I (0.0)
+#define PID_GAIN_D (0.0)
 
-// Setup the pins used by the different pressure sensors
+// Setup the digital pins used by the different pressure sensors
 #define SPI_CS_PATIENT_1_SENSOR_1 (10U) // CLOSEST P1
 #define SPI_CS_PATIENT_1_SENSOR_2 (11U)
 #define SPI_CS_PATIENT_2_SENSOR_1 (12U) // CLOSEST P2
 #define SPI_CS_PATIENT_2_SENSOR_2 (13U)
+
+// Setup the analog pins used by the different valves
+#define PWM_PATIENT_1_VALVE (3U)
+#define PWM_PATIENT_2_VALVE (5U)
 
 #endif // CONFIG_H

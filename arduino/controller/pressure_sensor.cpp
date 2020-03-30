@@ -46,7 +46,7 @@ double PressureSensor::getPressure()
     uint32_t raw_value = (pressure_b2 << 16U) | (pressure_b1 << 8U) | pressure_b0;
 #else
     // If we have no electronics attached, readings will just be garbage so randomly generate one
-    uint32_t raw_value = random(0U, (1U << 24U) - 1U);
+    uint32_t raw_value = random(_min_cnt, _max_cnt);
 #endif
 
     // Debug
