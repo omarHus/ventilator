@@ -37,7 +37,7 @@ double PressureSensor::getPressure()
     digitalWrite(_pin, HIGH);
 
     // Delay between sensor reads to avoid cross talk on the wires
-    delay(50U);
+    delay(100U);
 
     // Combine data bytes
 #if NO_ELECTRONICS_ATTACHED == 0
