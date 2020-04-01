@@ -12,8 +12,9 @@
 #define PSI_TO_CMH2O (70.307)
 #define PSI_TO_MPA (0.00689476)
 
-// This is 255 / 50,000, see convertToDutyCycle for details
-#define DUTY_CYCLE_CONV_SLOPE (0.0051)
+// This is 255 / MAX_VALVE_FLOW_RATE, see convertToDutyCycle for details
+#define MAX_VALVE_FLOW_RATE (25000) // mL/min
+#define DUTY_CYCLE_CONV_SLOPE (0.0102)
 
 // Loop time
 static unsigned long previousTime;
@@ -72,7 +73,7 @@ void loop()
     unsigned long currentTime = micros();
     double elapsedTime = currentTime - previousTime;
     if (elapsedTime >= POLLING_FREQ) {
-        debug_msg("Begin controller main code");
+        debug_double("Begin controller main code, elapsedTime = %s us", elapsedTime);
 
         // Convert elapsedTime from microseconds to seconds for remaining calculations
         elapsedTime = elapsedTime / 1000000.0;
@@ -206,7 +207,7 @@ int convertToDutyCycle(double pid_output, int curr_duty_cycle)
     int delta;
   
     // First deal with the edge cases, if the flow adjustment is massive in either direction, we can only turn the PWM signal all on or off
-    if (abs(pid_output) >= 50,000.0) {
+    if (abs(pid_output) >= MAX_VALVE_FLOW_RATE) {
         // The largest change we can do
         delta = 255;
     } else if (abs(pid_output) <= 0) {
