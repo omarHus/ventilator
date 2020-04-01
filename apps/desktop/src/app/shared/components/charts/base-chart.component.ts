@@ -14,9 +14,9 @@ import { IVentilatorDataset, IVentilatorData } from '../../../core/services/heal
 export class BaseChartComponent implements AfterViewInit, OnDestroy {
   public chart: Chart;
   public healthData: HealthData;
-  public title: string = '';
   @Input() public circuitId: string = `circuit${module.id}`;
   @Input() public chartId: string = `chart${module.id}`;
+  @Input() public title: string = `title`;
     
   private _unbsubscriber: Subject<void> = new Subject<void>();
   @ViewChild('airflowChart') private _airflowChart: ElementRef;
@@ -47,7 +47,7 @@ export class BaseChartComponent implements AfterViewInit, OnDestroy {
         label: this.title,
         data: this.healthData.data,
         pointRadius: 0,
-        // stepped: true,
+        borderColor: '#ff4081',
         fill: false,
         lineTension: 0.5,
       }]
@@ -56,7 +56,13 @@ export class BaseChartComponent implements AfterViewInit, OnDestroy {
     return new Chart(canvas.getContext('2d'), {
       type: 'line',
       data: seedData,
-      options: {   
+      options: {
+        aspectRatio: 1.5,
+        maintainAspectRatio: false,
+        legend: {
+          display: false
+        },
+        responsive: true,
         animation: {
             duration: 0,
         },
@@ -73,7 +79,6 @@ export class BaseChartComponent implements AfterViewInit, OnDestroy {
         map((dataset: IVentilatorDataset) => dataset[this.circuitId])
       )
       .subscribe((ventilatorData: IVentilatorData) => {
-        console.log(ventilatorData);
         this.healthData.add({
           timestamp: ventilatorData.timestamp,
           value: ventilatorData[this._dataType]

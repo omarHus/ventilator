@@ -6,7 +6,7 @@ import { HealtDataTypeEnum } from '../../../../core/services/health';
 @Component({
   selector: 'app-pressure-chart',
   templateUrl: './pressure-chart.component.html',
-  styleUrls: ['./pressure-chart.component.scss'],
+  styleUrls: ['../base-chart.component.scss'],
   moduleId: module.id
 })
 export class PressureChartComponent extends BaseChartComponent {

@@ -1,0 +1,38 @@
+:host {
+  width: 100%;
+  padding: 20px;
+}
+
+.graph-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width:  45%;
+  height: 100%;
+}
+
+mat-slider {
+  width: 100%;
+  .mat-slider-horizontal .mat-slider-track-wrapper {
+    background-color: white !important;
+  }
+  .mat-slider-track-background {
+    background-color: white !important;  
+  }
+}
+
+.chart-item {
+  width: 100%;
+  padding-bottom: 40px;
+}
+
+.chart-control {
+  width: 100%;
+}

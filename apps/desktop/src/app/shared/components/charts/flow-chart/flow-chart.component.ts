@@ -5,7 +5,7 @@ import { HealtDataTypeEnum, HealthService } from '../../../../core/services/heal
 @Component({
   selector: 'app-flow-chart',
   templateUrl: './flow-chart.component.html',
-  styleUrls: ['./flow-chart.component.scss'],
+  styleUrls: ['../base-chart.component.scss'],
   moduleId: module.id
 })
 export class FlowChartComponent extends BaseChartComponent {

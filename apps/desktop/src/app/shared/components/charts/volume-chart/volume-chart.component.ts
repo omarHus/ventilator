@@ -6,7 +6,7 @@ import { HealtDataTypeEnum } from '../../../../core/services/health';
 @Component({
   selector: 'app-volume-chart',
   templateUrl: './volume-chart.component.html',
-  styleUrls: ['./volume-chart.component.scss'],
+  styleUrls: ['../base-chart.component.scss'],
   moduleId: module.id
 })
 export class VolumeChartComponent extends BaseChartComponent {

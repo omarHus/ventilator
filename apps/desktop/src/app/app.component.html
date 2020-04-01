@@ -1,1 +1,30 @@
-<router-outlet></router-outlet>
+<mat-drawer-container class="app-container">
+  <mat-drawer
+    class="sidebar-container"
+    mode="side"
+    opened>
+    <span class="nav-item">
+      <a class="nav-link logo">
+        <mat-icon appearance="outline"aria-hidden="false">local_hospital</mat-icon>
+      </a>
+    </span>
+    <span class="nav-item">
+      <a class="nav-link" routerLink="/home" routerLinkActive="active" >
+        <mat-icon appearance="outline"aria-hidden="false">show_chart</mat-icon>
+      </a>
+    </span>
+    <span class="nav-item">
+      <a class="nav-link" routerLink="/assignment">
+        <mat-icon aria-hidden="false">recent_actors</mat-icon>
+      </a>
+    </span>
+    <span class="nav-item">
+      <a class="nav-link" routerLink="/print">
+        <mat-icon class="material-icons-outlined" aria-hidden="false">print</mat-icon>
+      </a>
+    </span>
+  </mat-drawer>
+  <mat-drawer-content class="content-container">
+    <router-outlet></router-outlet>
+  </mat-drawer-content>
+</mat-drawer-container>
