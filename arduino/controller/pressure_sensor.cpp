@@ -48,11 +48,11 @@ double PressureSensor::getPressure()
 #endif
 
     // Debug
-    debug_msg("\tSPI transaction complete!");
-    debug_int("\t\tStatus Byte = %02X", stat);
-    debug_int("\t\tData Byte 2 = %02X", pressure_b2);
-    debug_int("\t\tData Byte 1 = %02X", pressure_b1);
-    debug_int("\t\tData Byte 0 = %02X", pressure_b0);
+//    debug_msg("\tSPI transaction complete!");
+//    debug_int("\t\tStatus Byte = %02X", stat);
+//    debug_int("\t\tData Byte 2 = %02X", pressure_b2);
+//    debug_int("\t\tData Byte 1 = %02X", pressure_b1);
+//    debug_int("\t\tData Byte 0 = %02X", pressure_b0);
 
     // Convert to PSI
     return transferFunction(raw_value);

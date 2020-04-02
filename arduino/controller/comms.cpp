@@ -37,6 +37,7 @@ void comms_send(message_t* msg)
     jsonDoc["setpoint_p1"] = msg->setpoint_p1;
     jsonDoc["setpoint_p2"] = msg->setpoint_p2;
 
+    // debug stringify json
     serializeJson(jsonDoc, Serial);
 
     // TODO: Necessary?

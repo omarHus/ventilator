@@ -39,7 +39,9 @@ export class AppComponent implements OnInit {
   }
 
   private subscribeToPortEvents(): void {
-    this._serialPortService.port.on('data', (data: string) => {
+    this._serialPortService.parser.on('data', (data: string) => {
+
+        console.log(data);
       try {
         const message = JSON.parse(data);
         const timestamp = (new Date().getTime() - this._transmissionStartTime)/1000;
