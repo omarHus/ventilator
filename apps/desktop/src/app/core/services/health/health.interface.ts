@@ -1,14 +1,15 @@
+import { HealthData } from "./health.class";
+
 export interface IHealthData {
   timestamp: number;
   value: number;
 }
 
 export interface IVentilatorData {
-  timestamp: number;
   circuitId: string;
-  flow: number;
-  volume: number;
-  pressure: number;
+  flow: HealthData;
+  volume: HealthData;
+  pressure: HealthData;
 }
 
 export interface IVentilatorDataset {

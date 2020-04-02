@@ -4,7 +4,7 @@
     "outDir": "../out-tsc/app",
     "module": "es2015",
     "baseUrl": "",
-    "types": []
+    "types": ["../node_modules/@types/serialport"]
   },
   "exclude": [
     "**/*.spec.ts"

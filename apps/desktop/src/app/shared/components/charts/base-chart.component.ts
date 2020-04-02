@@ -13,7 +13,7 @@ import { IVentilatorDataset, IVentilatorData } from '../../../core/services/heal
 })
 export class BaseChartComponent implements AfterViewInit, OnDestroy {
   public chart: Chart;
-  public healthData: HealthData;
+
   @Input() public circuitId: string = `circuit${module.id}`;
   @Input() public chartId: string = `chart${module.id}`;
   @Input() public title: string = `title`;
@@ -24,9 +24,7 @@ export class BaseChartComponent implements AfterViewInit, OnDestroy {
   constructor(
     private _healthService: HealthService,
     private _dataType: HealtDataTypeEnum,
-  ) {
-    this.healthData = new HealthData(this._dataType, 18);
-  }
+  ) { }
 
   public ngAfterViewInit(): void {
     if (this._airflowChart) {
@@ -42,10 +40,10 @@ export class BaseChartComponent implements AfterViewInit, OnDestroy {
 
   private initChart(canvas: HTMLCanvasElement): Chart {
     var seedData = {
-      labels: this.healthData.time,
+      labels: this._healthService.dataset[this.circuitId][this._dataType].time,
       datasets: [{
         label: this.title,
-        data: this.healthData.data,
+        data: this._healthService.dataset[this.circuitId][this._dataType].data,
         pointRadius: 0,
         borderColor: '#ff4081',
         fill: false,
@@ -57,7 +55,7 @@ export class BaseChartComponent implements AfterViewInit, OnDestroy {
       type: 'line',
       data: seedData,
       options: {
-        aspectRatio: 1.5,
+        aspectRatio: 1.4,
         maintainAspectRatio: false,
         legend: {
           display: false
@@ -74,18 +72,11 @@ export class BaseChartComponent implements AfterViewInit, OnDestroy {
     this._healthService
       .onHealthUpdate
       .pipe(
-        takeUntil(this._unbsubscriber),
-        filter((dataset: IVentilatorDataset) => !!dataset[this.circuitId]),
-        map((dataset: IVentilatorDataset) => dataset[this.circuitId])
+        takeUntil(this._unbsubscriber)
       )
-      .subscribe((ventilatorData: IVentilatorData) => {
-        this.healthData.add({
-          timestamp: ventilatorData.timestamp,
-          value: ventilatorData[this._dataType]
-        });
-
-        this.chart.data.labels = this.healthData.time;
-        this.chart.data.datasets[0].data = this.healthData.data;
+      .subscribe(() => {
+        this.chart.data.labels = this._healthService.dataset[this.circuitId][this._dataType].time;
+        this.chart.data.datasets[0].data = this._healthService.dataset[this.circuitId][this._dataType].data;
         this.chart.update();
       });
   }

@@ -20,5 +20,6 @@ module.exports = (config, options) => {
         }
     }
 
+    config.externals = { "serialport": "require('serialport')" };
     return config;
 }

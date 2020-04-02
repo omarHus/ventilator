@@ -58,6 +58,7 @@
     "@types/jasminewd2": "2.0.8",
     "@types/mocha": "7.0.1",
     "@types/node": "12.11.1",
+    "@types/serialport": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "2.20.0",
     "@typescript-eslint/parser": "2.20.0",
     "chai": "4.2.0",
@@ -98,6 +99,7 @@
     "@angular/material": "^9.2.0",
     "chart.js": "2.9.3",
     "material-design-icons": "^3.0.1",
-    "ng2-charts": "2.3.0"
+    "ng2-charts": "2.3.0",
+    "serialport": "^8.0.7"
   }
 }

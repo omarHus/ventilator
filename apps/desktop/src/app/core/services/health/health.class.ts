@@ -9,8 +9,8 @@ export class HealthData {
     return this._dataset.queue.map((item: IHealthData) => item.value);
   }
   
-  public get time(): number[] {
-    return this._dataset.queue.map((item: IHealthData) => item.timestamp);
+  public get time(): string[] {
+    return this._dataset.queue.map((item: IHealthData) => item.timestamp.toFixed(1));
   }
 
   constructor(
