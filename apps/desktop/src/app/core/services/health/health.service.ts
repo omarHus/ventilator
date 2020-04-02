@@ -26,27 +26,29 @@ export class HealthService {
     public mockVolume = [0, 300, 400, 500, 400, 300, 200, 100, 50, 0];
     public mockPressure = [25, 25, 22, 20, 18, 15, 12, 9, 5, 5];
 
+    // TODO: for dev purpose... remove it when we can
     private _count = 0;
     private _transmissionStartTime = new Date().getTime();
     constructor() {
       this.dataset = this.initDataset();
 
-        timer(0, 100).subscribe((sec: number) => {
-            const timestamp = (new Date().getTime() - this._transmissionStartTime)/1000;
+        // TODO: for dev purpose... remove it when we can
+        // timer(0, 100).subscribe((sec: number) => {
+        //     const timestamp = (new Date().getTime() - this._transmissionStartTime)/1000;
             
-            this.addData('p1', HealtDataTypeEnum.volume, timestamp, this.mockVolume[this._count]);
-            this.addData('p1', HealtDataTypeEnum.flow, timestamp, this.mockFlow[this._count]);
-            this.addData('p1', HealtDataTypeEnum.pressure, timestamp, this.mockPressure[this._count]);
+        //     this.addData('p1', HealtDataTypeEnum.volume, timestamp, this.mockVolume[this._count]);
+        //     this.addData('p1', HealtDataTypeEnum.flow, timestamp, this.mockFlow[this._count]);
+        //     this.addData('p1', HealtDataTypeEnum.pressure, timestamp, this.mockPressure[this._count]);
 
-            this.addData('p2', HealtDataTypeEnum.volume, timestamp, this.mockVolume[this._count]);
-            this.addData('p2', HealtDataTypeEnum.flow, timestamp, this.mockFlow[this._count]);
-            this.addData('p2', HealtDataTypeEnum.pressure, timestamp, this.mockPressure[this._count]);
+        //     this.addData('p2', HealtDataTypeEnum.volume, timestamp, this.mockVolume[this._count]);
+        //     this.addData('p2', HealtDataTypeEnum.flow, timestamp, this.mockFlow[this._count]);
+        //     this.addData('p2', HealtDataTypeEnum.pressure, timestamp, this.mockPressure[this._count]);
 
-            this._count++;
-            if (this._count >= this.mockFlow.length-1) { this._count = 0; }
+        //     this._count++;
+        //     if (this._count >= this.mockFlow.length-1) { this._count = 0; }
 
-            this.onHealthUpdate.next();
-        })
+        //     this.onHealthUpdate.next();
+        // })
     }
 
     public addData(circuitId: string, dataType: HealtDataTypeEnum, timestamp: number, value: number): void {
