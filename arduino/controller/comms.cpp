@@ -9,7 +9,9 @@
 #include "comms.hpp"
 #include <ArduinoJson.h>
 
-static char tempBuf[256];
+//static char tempBuf[256];
+//static char floatBuf[64];
+static char tempBuf[130];
 static char floatBuf[64];
 static StaticJsonDocument<300> jsonDoc;
 

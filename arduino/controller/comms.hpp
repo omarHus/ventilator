@@ -5,6 +5,8 @@
  #ifndef COMMS_H
  #define COMMS_H
 
+
+
 // This structure defines the messages exchanged with the desktop app.
 typedef struct {
   // Patient 1

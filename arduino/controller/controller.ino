@@ -41,6 +41,7 @@ void computePID();
 void setup()
 {
     // Setup SPI, since this bus is common to all sensors it is done here
+    // Set spi settings (freq = 800kHz, MSB, mode 0)
     SPI.begin();
   
     // Setup pressure sensor driver
@@ -84,18 +85,18 @@ void loop()
         // Read pressure [PSI] from sensors
         double pressure_p11 = patient1_sensor1->getPressure(); // CLOSEST Patient 1
         double pressure_p12 = patient1_sensor2->getPressure();
-        double pressure_p21 = patient2_sensor2->getPressure(); // CLOSEST Patient 2
+        double pressure_p21 = patient2_sensor1->getPressure(); // CLOSEST Patient 2
         double pressure_p22 = patient2_sensor2->getPressure();
-//        debug_double("\tPatient 1 Pressure Sensor 1 = %s PSI", pressure_p11);
-//        debug_double("\tPatient 1 Pressure Sensor 2 = %s PSI", pressure_p12);
-//        debug_double("\tPatient 2 Pressure Sensor 1 = %s PSI", pressure_p21);
-//        debug_double("\tPatient 2 Pressure Sensor 2 = %s PSI", pressure_p22);
+        debug_double("\tPatient 1 Pressure Sensor 1 = %s PSI", pressure_p11);
+        debug_double("\tPatient 1 Pressure Sensor 2 = %s PSI", pressure_p12);
+        debug_double("\tPatient 2 Pressure Sensor 1 = %s PSI", pressure_p21);
+        debug_double("\tPatient 2 Pressure Sensor 2 = %s PSI", pressure_p22);
   
         // Pass the upstream pressure [cmH2O] readings to the display
         msg.pressure_p1 = PSI_TO_CMH2O * pressure_p11;
         msg.pressure_p2 = PSI_TO_CMH2O * pressure_p21;
-//        debug_double("\tPatient 1 Pressure = %s cmH2O", msg.pressure_p1);
-//        debug_double("\tPatient 2 Pressure = %s cmH2O", msg.pressure_p2);
+        debug_double("\tPatient 1 Pressure = %s cmH2O", msg.pressure_p1);
+        debug_double("\tPatient 2 Pressure = %s cmH2O", msg.pressure_p2);
   
         // Pressure upstream must be higher than pressure downstream (inspiratory)
         if ((pressure_p11 >= pressure_p12) && (pressure_p21 >= pressure_p22)) {
@@ -103,21 +104,21 @@ void loop()
             // Convert pressure readings [MPa] to flow [mL/min]
             msg.flow_p1 = flowMeasurement(PSI_TO_MPA * pressure_p11, PSI_TO_MPA * pressure_p12);
             msg.flow_p2 = flowMeasurement(PSI_TO_MPA * pressure_p21, PSI_TO_MPA * pressure_p22);
-//            debug_double("\tPatient 1 Flow = %s mL/min", msg.flow_p1);
-//            debug_double("\tPatient 2 Flow = %s mL/min", msg.flow_p2);
+            debug_double("\tPatient 1 Flow = %s mL/min", msg.flow_p1);
+            debug_double("\tPatient 2 Flow = %s mL/min", msg.flow_p2);
       
             // Approximate volume [mL] as the integral of the flow
             msg.volume_p1 += msg.flow_p1 * elapsedTime;
             msg.volume_p2 += msg.flow_p2 * elapsedTime;
-//            debug_double("\tPatient 1 Volume = %s mL", msg.volume_p1);
-//            debug_double("\tPatient 2 Volume = %s mL", msg.volume_p2);
+            debug_double("\tPatient 1 Volume = %s mL", msg.volume_p1);
+            debug_double("\tPatient 2 Volume = %s mL", msg.volume_p2);
       
             // Control the flow [mL/min] using a PID controller
             double elapsedTimeMin = elapsedTime / 60;
             double flow_adjustment_p1 = computePID(msg.flow_p1, msg.setpoint_p1, elapsedTimeMin);
             double flow_adjustment_p2 = computePID(msg.flow_p2, msg.setpoint_p2, elapsedTimeMin);
-//            debug_double("\tPatient 1 PID Output = %s mL/min", flow_adjustment_p1);
-//            debug_double("\tPatient 2 PID Output = %s mL/min", flow_adjustment_p2);
+            debug_double("\tPatient 1 PID Output = %s mL/min", flow_adjustment_p1);
+            debug_double("\tPatient 2 PID Output = %s mL/min", flow_adjustment_p2);
       
             // Map PID output from mL/min to duty cycle
             duty_cycle_p1 = convertToDutyCycle(flow_adjustment_p1, duty_cycle_p1);
@@ -130,8 +131,8 @@ void loop()
             // Send signal to valves
             analogWrite(PWM_PATIENT_1_VALVE, duty_cycle_p1);
             analogWrite(PWM_PATIENT_2_VALVE, duty_cycle_p2);
-//            debug_double("\tPatient 1 Duty Cycle = %s percent", 100.0 * (duty_cycle_p1 / 255.0));
-//            debug_double("\tPatient 2 Duty Cycle = %s percent", 100.0 * (duty_cycle_p2 / 255.0));            
+            debug_double("\tPatient 1 Duty Cycle = %s percent", 100.0 * (duty_cycle_p1 / 255.0));
+            debug_double("\tPatient 2 Duty Cycle = %s percent", 100.0 * (duty_cycle_p2 / 255.0));            
       
             // Send data to desktop app
             comms_send(&msg);
