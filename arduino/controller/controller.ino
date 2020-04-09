@@ -39,10 +39,12 @@ static PressureSensor* patient2_sensor2;
 void computePID();
 
 void setup()
-{
+{    
     // Setup SPI, since this bus is common to all sensors it is done here
-    // Set spi settings (freq = 800kHz, MSB, mode 0)
     SPI.begin();
+    
+    // Set SPI settings 800kHz, MSB first, and mode 0 based on datasheet
+    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0));
   
     // Setup pressure sensor driver
     patient1_sensor1 = new PressureSensor(SPI_CS_PATIENT_1_SENSOR_1);
@@ -56,7 +58,7 @@ void setup()
     // For test/debug
     randomSeed(analogRead(0));
 
-    // Make the setpoint [mL/min] something normal by default (90 L/min)
+    // Make the setpoint [mL/min] something normal by default (9L/min)
     msg.setpoint_p1 = 9000.0;
     msg.setpoint_p2 = 9000.0;
 

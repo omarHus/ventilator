@@ -23,31 +23,28 @@ PressureSensor::PressureSensor(int pin) : _pin(pin)
 
 // Get pressure from the sensor (datasheet section 7)
 double PressureSensor::getPressure()
-{  
-   // Set SPI settings 800kHz, MSB first, and mode 0 based on datasheet
-    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0));
-    
+{     
     // Select device
     digitalWrite(_pin, LOW);
 
-    // Step 1 in Datasheet table 18.
-    SPI.transfer(COMMAND_MEASURE);
-    SPI.transfer(COMMAND_DATA);
-    SPI.transfer(COMMAND_DATA);
-
-    // Step 2
-    SPI.transfer(0xF0);
-    delay(5);
-    
-    // Step 3. Read the 8-bit status and 24-bit pressure output
-    uint8_t stat        = SPI.transfer(0xF0);
+    // Step 1
+    uint8_t stat = SPI.transfer(COMMAND_MEASURE);
+//    SPI.transfer(COMMAND_DATA);
+//    SPI.transfer(COMMAND_DATA);
+//
+//    // Step 2
+//    delay(5);
+//    SPI.transfer(0xF0);
+//
+//    
+//    // Step 3. Read the 8-bit status and 24-bit pressure output
+//    stat = SPI.transfer(0xF0);
     uint8_t pressure_b2 = SPI.transfer(COMMAND_DATA);
     uint8_t pressure_b1 = SPI.transfer(COMMAND_DATA);
     uint8_t pressure_b0 = SPI.transfer(COMMAND_DATA);
    
     // Deselect device
     digitalWrite(_pin, HIGH);
-    SPI.endTransaction();
 
     // Delay between sensor reads to avoid cross talk on the wires
     delay(100U);

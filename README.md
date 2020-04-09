@@ -1,4 +1,4 @@
-# ventilator
+# Smart Ventilator Splitter Design
 
 ## Arduino
 
