@@ -1,15 +1,18 @@
 # Smart Ventilator Splitter Design
 
-## Arduino
+![Poster of Project](https://omarHus.github.com/ventilator/images/ventPoster.png)
+<!-- ![Poster of Project](images/ventPoster.png) -->
 
-Setup
-- Find the name of the port used by your arduino by going to the arduino IDE > tools > port.
-- Upload the code to your arduino
+## Concept
+Goal: To DOUBLE the number of patients that have access to a ventilator by splitting up the flow from a ventilator into two individual patient circuits.
 
-## Node
+Problem: Different patients have different lung resistances and compliances that affect the flow rate in each of the split flow passages.
 
-To run the node file on your terminal:
-- make sure you have npm
-- add module serialport: npm install serialport
-- open index.js and make sure the correct arduino port is specified (we should write some code to make sure this is done automatically)
-- then type this command in the terminal: node index.js
+Solution: Use a controller and control valve to ensure adequate flow rate in each patient circuit.
+
+## Main Components
+This project is open source and we welcome you to look at the different features and improve upon them. The main features of this project are the following:
+- desktop app
+- arduino controller
+- electrical schematic
+- mechanical components and design
