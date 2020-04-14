@@ -1,7 +1,6 @@
 # Smart Ventilator Splitter Design
 
-![Poster of Project](https://omarHus.github.com/ventilator/images/ventPoster.png)
-<!-- ![Poster of Project](images/ventPoster.png) -->
+![Poster of Project](images/ventPoster.png)
 
 ## Concept
 Goal: To DOUBLE the number of patients that have access to a ventilator by splitting up the flow from a ventilator into two individual patient circuits.

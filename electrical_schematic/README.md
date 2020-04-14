@@ -1,6 +1,6 @@
 # Smart Splitter Electronics
 
-![Electrical circuit](https://omarHus.github.com/ventilator/images/electricalCircuit.png)
+![Electrical circuit](../images/electricalCircuit.png)
 
 The electrical system consists of an arduino uno microcontroller that controls solenoid control valves based on the sensor readings from four pressure sensors. The power input for this system is a 12V wall adapter.
 

@@ -1,6 +1,6 @@
 # Mechanical Design of Ventilator Splitter
 
-![mechanical components](https://omarHus.github.com/ventilator/images/openModel_transparent.png)
+![mechanical components](../images/openModel_transparent.png)
 
 # Fluid Circuit
 
