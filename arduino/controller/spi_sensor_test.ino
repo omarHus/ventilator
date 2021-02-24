@@ -16,11 +16,11 @@ void setup() {
   // Setup serial
   Serial.begin(57600);
 
-  // Set slaveSelectPin as OUTPUT (when slave is HIGH it ignores master, when it is LOW it communicates
+  // Set slave pins as OUTPUT (when slave is HIGH it ignores master, when it is LOW it communicates)
   pinMode(inletPin, OUTPUT);
   pinMode(p1_pin, OUTPUT);
 
-  // De-assert slave pin0
+  // De-assert slave pins
   digitalWrite(inletPin, HIGH);
   digitalWrite(p1_pin, HIGH);
 
@@ -34,34 +34,43 @@ void setup() {
 void loop() {
 
 
-  // Get inlet pressure reading
+  // Get pressure readings
   double p_inlet = read_pressure(inletPin);
   double p1      = read_pressure(p1_pin);
 
+  // print preasure readings
   print_pressure_reading(p_inlet);
   print_pressure_reading(p1);
 
  
 }
 
-
+/* Function to initiate any SPI sequence to a given slave device
+ * Clock speed, MSB, SPI_MODE all given in sensor datasheet.
+ */
 void initiate_SPI_transfer(int slave_pin)
 {
   SPI.beginTransaction(SPISettings(SPI_CLOCK_SPEED, MSBFIRST, SPI_MODE0));
   digitalWrite(slave_pin, LOW);
 }
 
+/* Handles reading pressure count from given sensor
+ * Uses SPI based on datasheet commands
+ * Sensor sends back 24-bit pressure count
+ * Use transfer function A from datasheet to conver to PSI 
+ */
 double read_pressure(int slave_pin)
 {
 
   // Start SPI transaction with pin
   initiate_SPI_transfer(slave_pin);
 
-  // Step 1
+  // Step 1 From datasheet pp 18
   SPI.transfer(0xAA);
   SPI.transfer(0x00);
   SPI.transfer(0x00);
 
+  // End SPI sequence
   digitalWrite(slave_pin, HIGH);
   SPI.endTransaction();
 
@@ -70,12 +79,14 @@ double read_pressure(int slave_pin)
 
   // Step 3
   initiate_SPI_transfer(slave_pin);
+  
 
-  uint32_t reading = 0;
   uint8_t stat     = SPI.transfer(0xF0);
   Serial.print("status = ");
   Serial.println(stat);
-  
+
+  // Get pressure count reading [3x8bits = 24 bit reading]
+  uint32_t reading = 0;
   for(uint8_t i = 0; i<3; i++)
   {
     reading |= SPI.transfer(0x00);
@@ -95,6 +106,7 @@ double read_pressure(int slave_pin)
    
 }
 
+/* Prints pressure reading to serial in a nice way */
 void print_pressure_reading(double pressure)
 {
 
