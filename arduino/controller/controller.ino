@@ -30,10 +30,9 @@ static int duty_cycle_p2;
 static message_t msg;
 
 // Pressure sensor object globals
-static PressureSensor* patient1_sensor1;
-static PressureSensor* patient1_sensor2;
-static PressureSensor* patient2_sensor1;
-static PressureSensor* patient2_sensor2;
+static PressureSensor* inlet_sensor;
+static PressureSensor* patient1_sensor;
+static PressureSensor* patient2_sensor;
 
 // Private functions
 void computePID();
@@ -42,15 +41,11 @@ void setup()
 {    
     // Setup SPI, since this bus is common to all sensors it is done here
     SPI.begin();
-    
-    // Set SPI settings 800kHz, MSB first, and mode 0 based on datasheet
-    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0));
   
     // Setup pressure sensor driver
-    patient1_sensor1 = new PressureSensor(SPI_CS_PATIENT_1_SENSOR_1);
-    patient1_sensor2 = new PressureSensor(SPI_CS_PATIENT_1_SENSOR_2);
-    patient2_sensor1 = new PressureSensor(SPI_CS_PATIENT_2_SENSOR_1);
-    patient2_sensor2 = new PressureSensor(SPI_CS_PATIENT_2_SENSOR_2);
+    inlet_sensor    = new PressureSensor(SPI_CS_INLET_SENSOR);
+    patient1_sensor = new PressureSensor(SPI_CS_PATIENT_1);
+    patient2_sensor = new PressureSensor(SPI_CS_PATIENT_2);
   
     // Setup serial
     comms_init();
@@ -85,27 +80,26 @@ void loop()
         comms_receive(&msg);
   
         // Read pressure [PSI] from sensors
-        double pressure_p11 = patient1_sensor1->getPressure(); // CLOSEST Patient 1
-        double pressure_p12 = patient1_sensor2->getPressure();
-        double pressure_p21 = patient2_sensor1->getPressure(); // CLOSEST Patient 2
-        double pressure_p22 = patient2_sensor2->getPressure();
-        debug_double("\tPatient 1 Pressure Sensor 1 = %s PSI", pressure_p11);
-        debug_double("\tPatient 1 Pressure Sensor 2 = %s PSI", pressure_p12);
-        debug_double("\tPatient 2 Pressure Sensor 1 = %s PSI", pressure_p21);
-        debug_double("\tPatient 2 Pressure Sensor 2 = %s PSI", pressure_p22);
+        double inlet_pressure = inlet_sensor->getPressure();
+        double p1 = patient1_sensor->getPressure();
+        double p2 = patient2_sensor->getPressure();
+
+        debug_double("\tInlet Pressure = %s PSI", inlet_pressure);
+        debug_double("\tPatient 1 Pressure Sensor = %s PSI", p1);
+        debug_double("\tPatient 2 Pressure Sensor = %s PSI", p2);
   
         // Pass the upstream pressure [cmH2O] readings to the display
-        msg.pressure_p1 = PSI_TO_CMH2O * pressure_p11;
-        msg.pressure_p2 = PSI_TO_CMH2O * pressure_p21;
+        msg.pressure_p1 = PSI_TO_CMH2O * p1;
+        msg.pressure_p2 = PSI_TO_CMH2O * p2;
         debug_double("\tPatient 1 Pressure = %s cmH2O", msg.pressure_p1);
         debug_double("\tPatient 2 Pressure = %s cmH2O", msg.pressure_p2);
   
         // Pressure upstream must be higher than pressure downstream (inspiratory)
-        if ((pressure_p11 >= pressure_p12) && (pressure_p21 >= pressure_p22)) {
+        if ((p1 >= inlet_pressure) && (p2 >= inlet_pressure)) {
       
             // Convert pressure readings [MPa] to flow [mL/min]
-            msg.flow_p1 = flowMeasurement(PSI_TO_MPA * pressure_p11, PSI_TO_MPA * pressure_p12);
-            msg.flow_p2 = flowMeasurement(PSI_TO_MPA * pressure_p21, PSI_TO_MPA * pressure_p22);
+            msg.flow_p1 = flowMeasurement(PSI_TO_MPA * inlet_pressure, PSI_TO_MPA * p1);
+            msg.flow_p2 = flowMeasurement(PSI_TO_MPA * inlet_pressure, PSI_TO_MPA * p2);
             debug_double("\tPatient 1 Flow = %s mL/min", msg.flow_p1);
             debug_double("\tPatient 2 Flow = %s mL/min", msg.flow_p2);
       
@@ -226,4 +220,9 @@ int convertToDutyCycle(double pid_output, int curr_duty_cycle)
     } else {
         return curr_duty_cycle - delta;
     }
+}
+
+double square(double number)
+{
+  return number*number;
 }

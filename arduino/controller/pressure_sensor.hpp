@@ -13,6 +13,8 @@ public:
     double getPressure();
 
 private:
+    void initiate_SPI_transfer(int pin);
+    uint8_t connect_to_sensor(int pin);
     double transferFunction(uint32_t raw_value);
 
     // Chip select pin
@@ -23,6 +25,7 @@ private:
     const double _min_psi = 0.0;
     const uint32_t _max_cnt = 15099494;
     const uint32_t _min_cnt = 1677722;
+    const int SPI_CLOCK_SPEED = 800000;
 };
 
 #endif // PRESSURE_SENSOR_H
