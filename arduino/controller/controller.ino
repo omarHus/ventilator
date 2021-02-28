@@ -11,6 +11,7 @@
 // Scaling factors for unit conversions
 #define PSI_TO_CMH2O (70.307)
 #define PSI_TO_MPA (0.00689476)
+#define M3_S_TO_ML_MIN (6000.0)
 
 // This is 255 / MAX_VALVE_FLOW_RATE, see convertToDutyCycle for details
 #define MAX_VALVE_FLOW_RATE (25000) // mL/min
@@ -94,8 +95,8 @@ void loop()
         debug_double("\tPatient 1 Pressure = %s cmH2O", msg.pressure_p1);
         debug_double("\tPatient 2 Pressure = %s cmH2O", msg.pressure_p2);
   
-        // Pressure upstream must be higher than pressure downstream (inspiratory)
-        if ((p1 >= inlet_pressure) && (p2 >= inlet_pressure)) {
+        // Pressure upstream must be lower than pressure downstream (inspiratory)
+        if ((p1 <= inlet_pressure) && (p2 <= inlet_pressure)) {
       
             // Convert pressure readings [MPa] to flow [mL/min]
             msg.flow_p1 = flowMeasurement(PSI_TO_MPA * inlet_pressure, PSI_TO_MPA * p1);
@@ -149,18 +150,26 @@ void loop()
  *  - Must convert pressure values from PSI to MPa
  *  - Must include math.h library
  */
-double flowMeasurement(double p1, double p2)
+double flowMeasurement(double inlet_pressure, double p1)
 {
     // Venturi geometry
-    const double d1 = 11.05;                 // [mm]
-    const double d2 = 5.80;                  // [mm]
-    const double A1 = (M_PI/4.0)*square(d1); // [mm^2]
-    const double A2 = (M_PI/4.0)*square(d2); // [mm^2]
+    const double d1 = 11.0;                 // [mm]
+    const double d2 = 5.00;                  // [mm]
+    const double A_1 = (M_PI/4.0)*square(d1); // [mm^2]
+    const double A_2 = (M_PI/4.0)*square(d2); // [mm^2]
+    const double A_Ratio = A_2/A_1;
     
     // Air density
     const double rho = 1.225;                // [kg/m^3]
-    
-    return 60.0*sqrt((2.0/rho)*(p1 - p2) / ((1.0/square(A2)) - (1.0/square(A1)))); // [mL/min]
+
+    // Bernoulli Pressure Equation
+    double delta_P = 2.0*(inlet_pressure - p1)/rho;
+
+    // Outlet speed
+    double v_outlet = sqrt(delta_P/(1-square(A_Ratio)));
+
+    // Flow rate
+    return A_2*v_outlet*M3_S_TO_ML_MIN; // convert 1x10^-4 m^3/s to mL/min
 }
 
 /*
