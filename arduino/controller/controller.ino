@@ -21,7 +21,7 @@
 static unsigned long previousTime;
 
 // PID state variables
-static double sumError, lastError;
+static double sumError1, lastError1, sumError2, lastError2;
 
 // Valve control globals
 static int duty_cycle_p1;
@@ -64,6 +64,13 @@ void setup()
   
     // Init previous time
     previousTime = micros();
+
+    // initialize PID Globals
+    sumError1  = 0.0;
+    lastError1 = 0.0;
+    sumError1  = 0.0;
+    lastError1 = 0.0;
+    
 }
 
 void loop()
@@ -112,8 +119,8 @@ void loop()
       
             // Control the flow [mL/min] using a PID controller
             double elapsedTimeMin = elapsedTime / 60;
-            double flow_adjustment_p1 = computePID(msg.flow_p1, msg.setpoint_p1, elapsedTimeMin);
-            double flow_adjustment_p2 = computePID(msg.flow_p2, msg.setpoint_p2, elapsedTimeMin);
+            double flow_adjustment_p1 = computePID(msg.flow_p1, msg.setpoint_p1, sumError1, lastError1, elapsedTimeMin);
+            double flow_adjustment_p2 = computePID(msg.flow_p2, msg.setpoint_p2, sumError2, lastError2, elapsedTimeMin);
             debug_double("\tPatient 1 PID Output = %s mL/min", flow_adjustment_p1);
             debug_double("\tPatient 2 PID Output = %s mL/min", flow_adjustment_p2);
       
@@ -134,7 +141,7 @@ void loop()
             // Send data to desktop app
             comms_send(&msg);
         } else {
-            debug_msg("\tError! Pressure upstream must be greater than downstream. Skipping calculations...");
+            debug_msg("\tError! Pressure upstream must be less than downstream. Skipping calculations...");
         }
         
         previousTime = currentTime;
@@ -178,7 +185,7 @@ double flowMeasurement(double inlet_pressure, double p1)
  *  - sumError
  *  - lastError
  */
-double computePID(double input, double setpoint, double delta_t)
+double computePID(double input, double setpoint, double sumError, double lastError, double delta_t)
 {
     // Calculate error variables
     double error     = input - setpoint;
@@ -211,17 +218,21 @@ double computePID(double input, double setpoint, double delta_t)
 int convertToDutyCycle(double pid_output, int curr_duty_cycle)
 {  
     int delta;
+    int delta_current;
   
     // First deal with the edge cases, if the flow adjustment is massive in either direction, we can only turn the PWM signal all on or off
     if (abs(pid_output) >= MAX_VALVE_FLOW_RATE) {
-        // The largest change we can do
+        // largest change
         delta = 255;
-    } else if (abs(pid_output) <= 0) {
-        // The smallest change we can do
-        delta = 25;
-    } else {
+    } 
+    else {
         // Adjust the duty cycle accordingly
-        delta = abs(((int) (DUTY_CYCLE_CONV_SLOPE * pid_output)));
+        
+        // map from inverted pid_output (0, max flow rate) to current (60, 180 mA) based on valve data sheet
+        delta_current = map(abs(pid_output), 0, MAX_VALVE_FLOW_RATE, 60, 180);
+        
+        // map from current to duty cycle
+        delta = map(delta_current, 60, 180, 0, 255);
     }
 
     if (pid_output < 0) {
