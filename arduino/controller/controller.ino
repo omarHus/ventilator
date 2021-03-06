@@ -70,6 +70,12 @@ void setup()
     lastError1 = 0.0;
     sumError1  = 0.0;
     lastError1 = 0.0;
+
+    // Open valves to begin
+    pinMode(PWM_PATIENT_1_VALVE, OUTPUT);
+    pinMode(PWM_PATIENT_2_VALVE, OUTPUT);
+    analogWrite(PWM_PATIENT_1_VALVE, duty_cycle_p1);
+    analogWrite(PWM_PATIENT_2_VALVE, duty_cycle_p2);
     
 }
 
@@ -103,7 +109,7 @@ void loop()
         debug_double("\tPatient 2 Pressure = %s cmH2O", msg.pressure_p2);
   
         // Pressure upstream must be lower than pressure downstream (inspiratory)
-        if ((p1 <= inlet_pressure) && (p2 <= inlet_pressure)) {
+        if ((p1 <= inlet_pressure) || (p2 <= inlet_pressure)) {
       
             // Convert pressure readings [MPa] to flow [mL/min]
             msg.flow_p1 = flowMeasurement(PSI_TO_MPA * inlet_pressure, PSI_TO_MPA * p1);
@@ -119,8 +125,8 @@ void loop()
       
             // Control the flow [mL/min] using a PID controller
             double elapsedTimeMin = elapsedTime / 60;
-            double flow_adjustment_p1 = computePID(msg.flow_p1, msg.setpoint_p1, sumError1, lastError1, elapsedTimeMin);
-            double flow_adjustment_p2 = computePID(msg.flow_p2, msg.setpoint_p2, sumError2, lastError2, elapsedTimeMin);
+            double flow_adjustment_p1 = computePID(msg.flow_p1, msg.setpoint_p1, &sumError1, &lastError1, elapsedTimeMin);
+            double flow_adjustment_p2 = computePID(msg.flow_p2, msg.setpoint_p2, &sumError2, &lastError2, elapsedTimeMin);
             debug_double("\tPatient 1 PID Output = %s mL/min", flow_adjustment_p1);
             debug_double("\tPatient 2 PID Output = %s mL/min", flow_adjustment_p2);
       
@@ -140,6 +146,7 @@ void loop()
       
             // Send data to desktop app
             comms_send(&msg);
+
         } else {
             debug_msg("\tError! Pressure upstream must be less than downstream. Skipping calculations...");
         }
@@ -184,19 +191,20 @@ double flowMeasurement(double inlet_pressure, double p1)
  * derivative portions:
  *  - sumError
  *  - lastError
+ *  - Pass these values by reference so the function changes the value of the actual Globals
  */
-double computePID(double input, double setpoint, double sumError, double lastError, double delta_t)
+double computePID(double input, double setpoint, double *sumError, double *lastError, double delta_t)
 {
     // Calculate error variables
     double error     = input - setpoint;
-    double rateError = (error - lastError) / delta_t;
+    double rateError = (error - *lastError) / delta_t;
 
     // Update globals
-    sumError  = sumError + (error * delta_t);
-    lastError = error;
+    *sumError  = *sumError + (error * delta_t);
+    *lastError = error;
     
     // Compute PID output
-    return PID_GAIN_P*error + PID_GAIN_I*sumError + PID_GAIN_D*rateError;
+    return PID_GAIN_P*error + PID_GAIN_I*(*sumError) + PID_GAIN_D*rateError;
 }
 
 /*

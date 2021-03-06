@@ -28,4 +28,8 @@
 #define PWM_PATIENT_1_VALVE (5U)
 #define PWM_PATIENT_2_VALVE (6U)
 
+// Setup the digital pins for bluetooth comms
+#define RADIO_CE_PIN  (20U)
+#define RADIO_CSN_PIN (21U)
+
 #endif // CONFIG_H
