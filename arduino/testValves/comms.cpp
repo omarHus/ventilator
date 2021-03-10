@@ -20,7 +20,6 @@ void comms_init(void)
 {
     // Init serial port
     Serial.begin(9600);
-    Serial1.begin(9600);
 
     // Wait for serial port to initialize
     while (!Serial);
@@ -41,17 +40,16 @@ void comms_send(message_t* msg)
     jsonDoc["setpoint_p2"] = msg->setpoint_p2;
 
     // debug stringify json
-    serializeJson(jsonDoc, Serial1);
+    serializeJson(jsonDoc, Serial);
 
     // TODO: Necessary?
-    Serial1.write("\n");
     Serial.println();
 }
 
 // Read from desktop app
 void comms_receive(message_t* msg)
 {
-    String jsonRaw = Serial1.readString();
+    String jsonRaw = Serial.readString();
     if (jsonRaw.length() > 0) {
         deserializeJson(jsonDoc, jsonRaw);
 

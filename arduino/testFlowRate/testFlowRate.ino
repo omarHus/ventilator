@@ -15,14 +15,6 @@
 
 // This is 255 / MAX_VALVE_FLOW_RATE, see convertToDutyCycle for details
 #define MAX_VALVE_FLOW_RATE (23500) // mL/min
-#define MAX_VALVE_CURRENT   (185) //mA
-#define MIN_VALVE_CURRENT   (60) // mA
-
-// Loop time
-static unsigned long previousTime;
-
-// PID state variables
-static double sumError1, lastError1, sumError2, lastError2;
 
 // Valve control globals
 static int duty_cycle_p1;
@@ -51,109 +43,59 @@ void setup()
   
     // Setup serial
     comms_init();
-  
-    // For test/debug
-    randomSeed(analogRead(0));
-
-    // Make the setpoint [mL/min] something normal by default (9L/min)
-    msg.setpoint_p1 = 9000.0;
-    msg.setpoint_p2 = 9000.0;
-
-    // Make the duty cycle something normal by default
-    duty_cycle_p1 = 127;
-    duty_cycle_p2 = 127;
-  
-    // Init previous time
-    previousTime = micros();
-
-    // initialize PID Globals
-    sumError1  = 0.0;
-    lastError1 = 0.0;
-    sumError1  = 0.0;
-    lastError1 = 0.0;
 
     // Open valves to begin
     pinMode(PWM_PATIENT_1_VALVE, OUTPUT);
     pinMode(PWM_PATIENT_2_VALVE, OUTPUT);
-    analogWrite(PWM_PATIENT_1_VALVE, duty_cycle_p1);
-    analogWrite(PWM_PATIENT_2_VALVE, duty_cycle_p2);
+    analogWrite(PWM_PATIENT_1_VALVE, 255);
+    analogWrite(PWM_PATIENT_2_VALVE, 255);
+
+    duty_cycle_p1 = 255;
     
 }
 
 void loop()
 {
-    // Ensure polling at desired frequency
-    unsigned long currentTime = micros();
-    double elapsedTime = currentTime - previousTime;
-    if (elapsedTime >= POLLING_FREQ) {
-        debug_double("Begin controller main code, elapsedTime = %s us", elapsedTime);
-
-        // Convert elapsedTime from microseconds to seconds for remaining calculations
-        elapsedTime = elapsedTime / 1000000.0;
   
-        // Receive data from the desktop app
-        comms_receive(&msg);
-  
-        // Read pressure [PSI] from sensors
-        double inlet_pressure = inlet_sensor->getPressure();
-        double p1 = patient1_sensor->getPressure();
-        double p2 = patient2_sensor->getPressure();
+      // Receive data from the mobile app
+      if (Serial1.available()){
+        duty_cycle_p1 = Serial1.read();
+      }
 
-        debug_double("\tInlet Pressure = %s PSI", inlet_pressure);
-        debug_double("\tPatient 1 Pressure Sensor = %s PSI", p1);
-        debug_double("\tPatient 2 Pressure Sensor = %s PSI", p2);
-  
-        // Pass the upstream pressure [cmH2O] readings to the display
-        msg.pressure_p1 = PSI_TO_CMH2O * p1;
-        msg.pressure_p2 = PSI_TO_CMH2O * p2;
-//        debug_double("\tPatient 1 Pressure = %s cmH2O", msg.pressure_p1);
-//        debug_double("\tPatient 2 Pressure = %s cmH2O", msg.pressure_p2);
-  
-        // Pressure upstream must be lower than pressure downstream (inspiratory)
-        if ((p1 <= inlet_pressure) || (p2 <= inlet_pressure)) {
-      
-            // Convert pressure readings [MPa] to flow [mL/min]
-            msg.flow_p1 = flowMeasurement(PSI_TO_MPA * inlet_pressure, PSI_TO_MPA * p1);
-            msg.flow_p2 = flowMeasurement(PSI_TO_MPA * inlet_pressure, PSI_TO_MPA * p2);
-            debug_double("\tPatient 1 Flow = %s mL/min", msg.flow_p1);
-            debug_double("\tPatient 2 Flow = %s mL/min", msg.flow_p2);
-      
-            // Approximate volume [mL] as the integral of the flow
-            msg.volume_p1 += msg.flow_p1 * elapsedTime;
-            msg.volume_p2 += msg.flow_p2 * elapsedTime;
-//            debug_double("\tPatient 1 Volume = %s mL", msg.volume_p1);
-//            debug_double("\tPatient 2 Volume = %s mL", msg.volume_p2);
-      
-            // Control the flow [mL/min] using a PID controller
-            double elapsedTimeMin = elapsedTime / 60;
-            double flow_adjustment_p1 = computePID(msg.flow_p1, msg.setpoint_p1, &sumError1, &lastError1, elapsedTimeMin);
-            double flow_adjustment_p2 = computePID(msg.flow_p2, msg.setpoint_p2, &sumError2, &lastError2, elapsedTimeMin);
-            debug_double("\tPatient 1 PID Output = %s mL/min", flow_adjustment_p1);
-            debug_double("\tPatient 2 PID Output = %s mL/min", flow_adjustment_p2);
-      
-            // Map PID output from mL/min to duty cycle
-            duty_cycle_p1 = convertToDutyCycle(flow_adjustment_p1, duty_cycle_p1);
-            duty_cycle_p2 = convertToDutyCycle(flow_adjustment_p2, duty_cycle_p2);
 
-            // Stay within range - note that these next two lines is typically not allowed for safety-critical code...
-            duty_cycle_p1 = (duty_cycle_p1 > 255) ? 255 : (duty_cycle_p1 < 0) ? 0 : duty_cycle_p1;
-            duty_cycle_p2 = (duty_cycle_p2 > 255) ? 255 : (duty_cycle_p2 < 0) ? 0 : duty_cycle_p2;            
+      // Read pressure [PSI] from sensors
+      double inlet_pressure = inlet_sensor->getPressure();
+      double p1 = patient1_sensor->getPressure();
+      double p2 = patient2_sensor->getPressure();
 
-            // Send signal to valves
-            analogWrite(PWM_PATIENT_1_VALVE, duty_cycle_p1);
-            analogWrite(PWM_PATIENT_2_VALVE, duty_cycle_p2);
-            debug_double("\tPatient 1 Duty Cycle = %s percent", 100.0 * (duty_cycle_p1 / 255.0));
-            debug_double("\tPatient 2 Duty Cycle = %s percent", 100.0 * (duty_cycle_p2 / 255.0));            
-      
-            // Send data to desktop app
-            comms_send(&msg);
+      debug_double("\tInlet Pressure = %s PSI", inlet_pressure);
+      debug_double("\tPatient 1 Pressure Sensor = %s PSI", p1);
+      debug_double("\tPatient 2 Pressure Sensor = %s PSI", p2);
+
+
+      // Pressure upstream must be lower than pressure downstream (inspiratory)
+      if ((p1 <= inlet_pressure) && (p2 <= inlet_pressure)) {
+    
+          // Convert pressure readings [MPa] to flow [mL/min]
+          msg.flow_p1 = flowMeasurement(PSI_TO_MPA * inlet_pressure, PSI_TO_MPA * p1);
+          msg.flow_p2 = flowMeasurement(PSI_TO_MPA * inlet_pressure, PSI_TO_MPA * p2);
+          debug_double("\tPatient 1 Flow = %s mL/min", msg.flow_p1);
+          debug_double("\tPatient 2 Flow = %s mL/min", msg.flow_p2);
+    
+
+          // Send signal to valves
+          analogWrite(PWM_PATIENT_1_VALVE, duty_cycle_p1);
+          analogWrite(PWM_PATIENT_2_VALVE, duty_cycle_p1);
+          debug_double("\tPatient 1 Duty Cycle = %s percent", 100.0 * (duty_cycle_p1 / 255.0));
+          debug_double("\tPatient 2 Duty Cycle = %s percent", 100.0 * (duty_cycle_p1 / 255.0));            
+    
+          // Send data to desktop app
+          comms_send(&msg);
 
         } else {
             debug_msg("\tError! Pressure upstream must be less than downstream. Skipping calculations...");
         }
         
-        previousTime = currentTime;
-    }
 }
 
 // ------------------ PHYSICAL MODEL + CONTROL SYSTEM ------------------
@@ -238,10 +180,10 @@ int convertToDutyCycle(double pid_output, int curr_duty_cycle)
         // Adjust the duty cycle accordingly
         
         // map from inverted pid_output (0, max flow rate) to current (60, 180 mA) based on valve data sheet
-        delta_current = map(abs(pid_output), 0, MAX_VALVE_FLOW_RATE, MIN_VALVE_CURRENT, MAX_VALVE_CURRENT);
+        delta_current = map(abs(pid_output), 0, MAX_VALVE_FLOW_RATE, 60, 180);
         
         // map from current to duty cycle
-        delta = map(delta_current, MIN_VALVE_CURRENT, MAX_VALVE_CURRENT, 0, 255);
+        delta = map(delta_current, 60, 180, 0, 255);
     }
 
     if (pid_output < 0) {
