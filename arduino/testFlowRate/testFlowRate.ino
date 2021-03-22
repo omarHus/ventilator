@@ -19,6 +19,7 @@
 // Valve control globals
 static int duty_cycle_p1;
 static int duty_cycle_p2;
+String valve_char;
 
 // Message globals
 static message_t msg;
@@ -51,6 +52,7 @@ void setup()
     analogWrite(PWM_PATIENT_2_VALVE, 255);
 
     duty_cycle_p1 = 255;
+    valve_char = "";
     
 }
 
@@ -58,9 +60,16 @@ void loop()
 {
   
       // Receive data from the mobile app
-      if (Serial1.available()){
-        duty_cycle_p1 = Serial1.read();
+      while (Serial1.available()>0){
+        valve_char = (char)Serial1.read();
+        if (valve_char == 'l'){
+          duty_cycle_p1 = 0;
+        }
+        else if (valve_char == 'h'){
+          duty_cycle_p1 = 255;
+        }    
       }
+      Serial.println(duty_cycle_p1);
 
 
       // Read pressure [PSI] from sensors
@@ -82,8 +91,6 @@ void loop()
           debug_double("\tPatient 1 Flow = %s mL/min", msg.flow_p1);
           debug_double("\tPatient 2 Flow = %s mL/min", msg.flow_p2);
     
-
-          // Send signal to valves
           analogWrite(PWM_PATIENT_1_VALVE, duty_cycle_p1);
           analogWrite(PWM_PATIENT_2_VALVE, duty_cycle_p1);
           debug_double("\tPatient 1 Duty Cycle = %s percent", 100.0 * (duty_cycle_p1 / 255.0));
@@ -110,8 +117,8 @@ void loop()
 double flowMeasurement(double inlet_pressure, double p1)
 {
     // Venturi geometry
-    const double d1 = 11.0;                 // [mm]
-    const double d2 = 5.00;                  // [mm]
+    const double d1 = 23.0;                 // [mm]
+    const double d2 = 8.00;                  // [mm]
     const double A_1 = (M_PI/4.0)*square(d1); // [mm^2]
     const double A_2 = (M_PI/4.0)*square(d2); // [mm^2]
     const double A_Ratio = A_2/A_1;

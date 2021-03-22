@@ -44,7 +44,7 @@ void comms_send(message_t* msg)
     serializeJson(jsonDoc, Serial1);
 
     // TODO: Necessary?
-    Serial1.write("\n");
+//    Serial1.write("\n");
     Serial.println();
 }
 

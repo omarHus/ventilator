@@ -47,8 +47,8 @@ double PressureSensor::getPressure()
     SPI.endTransaction();
 
     // Debug
-    debug_msg("\tSPI transaction complete!");
-    debug_int("\t\tStatus Byte = %02X", stat);
+//    debug_msg("\tSPI transaction complete!");
+//    debug_int("\t\tStatus Byte = %02X", stat);
 
     // Wait to clear bus before reading next sensor
     delay(5);
@@ -93,8 +93,8 @@ uint8_t PressureSensor::connect_to_sensor(int _pin)
   // Step 3: Get status Byte
   initiate_SPI_transfer(_pin);
   uint8_t stat = SPI.transfer(0xF0);
-  Serial.print("status = ");
-  Serial.println(stat);
+//  Serial.print("status = ");
+//  Serial.println(stat);
 
   return stat;
 }

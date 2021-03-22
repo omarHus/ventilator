@@ -56,12 +56,12 @@ void setup()
     randomSeed(analogRead(0));
 
     // Make the setpoint [mL/min] something normal by default (9L/min)
-    msg.setpoint_p1 = 9000.0;
-    msg.setpoint_p2 = 9000.0;
+    msg.setpoint_p1 = 5000.0;
+    msg.setpoint_p2 = 5000.0;
 
     // Make the duty cycle something normal by default
-    duty_cycle_p1 = 127;
-    duty_cycle_p2 = 127;
+    duty_cycle_p1 = 255;
+    duty_cycle_p2 = 255;
   
     // Init previous time
     previousTime = micros();
@@ -86,7 +86,7 @@ void loop()
     unsigned long currentTime = micros();
     double elapsedTime = currentTime - previousTime;
     if (elapsedTime >= POLLING_FREQ) {
-        debug_double("Begin controller main code, elapsedTime = %s us", elapsedTime);
+//        debug_double("Begin controller main code, elapsedTime = %s us", elapsedTime);
 
         // Convert elapsedTime from microseconds to seconds for remaining calculations
         elapsedTime = elapsedTime / 1000000.0;
@@ -99,9 +99,9 @@ void loop()
         double p1 = patient1_sensor->getPressure();
         double p2 = patient2_sensor->getPressure();
 
-        debug_double("\tInlet Pressure = %s PSI", inlet_pressure);
-        debug_double("\tPatient 1 Pressure Sensor = %s PSI", p1);
-        debug_double("\tPatient 2 Pressure Sensor = %s PSI", p2);
+//        debug_double("\tInlet Pressure = %s PSI", inlet_pressure);
+//        debug_double("\tPatient 1 Pressure Sensor = %s PSI", p1);
+//        debug_double("\tPatient 2 Pressure Sensor = %s PSI", p2);
   
         // Pass the upstream pressure [cmH2O] readings to the display
         msg.pressure_p1 = PSI_TO_CMH2O * p1;
@@ -110,13 +110,16 @@ void loop()
 //        debug_double("\tPatient 2 Pressure = %s cmH2O", msg.pressure_p2);
   
         // Pressure upstream must be lower than pressure downstream (inspiratory)
-        if ((p1 <= inlet_pressure) || (p2 <= inlet_pressure)) {
+        if ((p1 <= inlet_pressure) && (p2 <= inlet_pressure)) {
       
             // Convert pressure readings [MPa] to flow [mL/min]
             msg.flow_p1 = flowMeasurement(PSI_TO_MPA * inlet_pressure, PSI_TO_MPA * p1);
             msg.flow_p2 = flowMeasurement(PSI_TO_MPA * inlet_pressure, PSI_TO_MPA * p2);
-            debug_double("\tPatient 1 Flow = %s mL/min", msg.flow_p1);
-            debug_double("\tPatient 2 Flow = %s mL/min", msg.flow_p2);
+//            debug_double("\tPatient 1 Flow = %s mL/min", msg.flow_p1);
+//            debug_double("\tPatient 2 Flow = %s mL/min", msg.flow_p2);
+            Serial.print(msg.flow_p1);
+            Serial.print("\t");
+            Serial.println(msg.flow_p2);
       
             // Approximate volume [mL] as the integral of the flow
             msg.volume_p1 += msg.flow_p1 * elapsedTime;
@@ -128,8 +131,8 @@ void loop()
             double elapsedTimeMin = elapsedTime / 60;
             double flow_adjustment_p1 = computePID(msg.flow_p1, msg.setpoint_p1, &sumError1, &lastError1, elapsedTimeMin);
             double flow_adjustment_p2 = computePID(msg.flow_p2, msg.setpoint_p2, &sumError2, &lastError2, elapsedTimeMin);
-            debug_double("\tPatient 1 PID Output = %s mL/min", flow_adjustment_p1);
-            debug_double("\tPatient 2 PID Output = %s mL/min", flow_adjustment_p2);
+//            debug_double("\tPatient 1 PID Output = %s mL/min", flow_adjustment_p1);
+//            debug_double("\tPatient 2 PID Output = %s mL/min", flow_adjustment_p2);
       
             // Map PID output from mL/min to duty cycle
             duty_cycle_p1 = convertToDutyCycle(flow_adjustment_p1, duty_cycle_p1);
@@ -142,14 +145,14 @@ void loop()
             // Send signal to valves
             analogWrite(PWM_PATIENT_1_VALVE, duty_cycle_p1);
             analogWrite(PWM_PATIENT_2_VALVE, duty_cycle_p2);
-            debug_double("\tPatient 1 Duty Cycle = %s percent", 100.0 * (duty_cycle_p1 / 255.0));
-            debug_double("\tPatient 2 Duty Cycle = %s percent", 100.0 * (duty_cycle_p2 / 255.0));            
+//            debug_double("\tPatient 1 Duty Cycle = %s percent", 100.0 * (duty_cycle_p1 / 255.0));
+//            debug_double("\tPatient 2 Duty Cycle = %s percent", 100.0 * (duty_cycle_p2 / 255.0));            
       
             // Send data to desktop app
             comms_send(&msg);
 
         } else {
-            debug_msg("\tError! Pressure upstream must be less than downstream. Skipping calculations...");
+//            debug_msg("\tError! Pressure upstream must be less than downstream. Skipping calculations...");
         }
         
         previousTime = currentTime;
@@ -168,8 +171,8 @@ void loop()
 double flowMeasurement(double inlet_pressure, double p1)
 {
     // Venturi geometry
-    const double d1 = 11.0;                 // [mm]
-    const double d2 = 5.00;                  // [mm]
+    const double d1 = 23.0;                   // [mm]
+    const double d2 = 4.0;                    // [mm]
     const double A_1 = (M_PI/4.0)*square(d1); // [mm^2]
     const double A_2 = (M_PI/4.0)*square(d2); // [mm^2]
     const double A_Ratio = A_2/A_1;
