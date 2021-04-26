@@ -16,7 +16,9 @@ PressureSensor::PressureSensor(int pin) : _pin(pin)
 
     // Reset Pin to get rid of junk readings
     digitalWrite(_pin, HIGH);
+    delay(5);
     digitalWrite(_pin, LOW);
+    delay(5);
     digitalWrite(_pin, HIGH);
     delay(5);
     

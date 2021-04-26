@@ -41,10 +41,10 @@ void comms_send(message_t* msg)
     jsonDoc["setpoint_p2"] = msg->setpoint_p2;
 
     // debug stringify json
-    serializeJson(jsonDoc, Serial1);
+    serializeJson(jsonDoc, Serial);
 
     // TODO: Necessary?
-    Serial1.write("\n");
+//    Serial1.write("\n");
     Serial.println();
 }
 
